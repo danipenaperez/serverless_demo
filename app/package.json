@@ -1,5 +1,5 @@
 {
-  "name": "AWS SAM -Serverless demo project",
+  "name": "AWS-SAM-Serverless-demo-project",
   "version": "1.0.0",
   "description": "Project using some AWS serveless services",
   "main": "app.js",
@@ -8,5 +8,12 @@
     "bcryptjs": "^2.4.3",
     "crypto-js": "^3.1.9-1",
     "jsonwebtoken": "^8.5.1"
+  },
+  "scripts": {
+    "test": "mocha test/unit/authorization"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
   }
 }

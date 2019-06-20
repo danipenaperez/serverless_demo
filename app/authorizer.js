@@ -58,9 +58,12 @@ exports.basiclogin = async function(event) {
 
 	return {
 		statusCode: 200,
-		body: JSON.stringify(event),
+		body: JSON.stringify({
+			token: 'Bearer '+token, 
+			refreshToken: 'Bearer 12345'
+		}),
 		headers: {
-			Authorization: token
+			Authorization: 'Bearer '+token
 		}
 	}
 
