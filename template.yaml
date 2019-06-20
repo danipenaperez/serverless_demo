@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Project using some AWS serveless services
+Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: authorizer.basiclogin
+      Runtime: nodejs8.10
+      Events:
+        GetRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /login
+            Method: post
+  ValidateTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: authorizer.validateToken
+      Runtime: nodejs8.10
+      Events:
+        GetRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /token/validate
+            Method: post
+Outputs:
+  ApiURL:
+    Description: "API URL"
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'

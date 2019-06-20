@@ -1,0 +1,12 @@
+{
+  "name": "AWS SAM -Serverless demo project",
+  "version": "1.0.0",
+  "description": "Project using some AWS serveless services",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "crypto-js": "^3.1.9-1",
+    "jsonwebtoken": "^8.5.1"
+  }
+}
