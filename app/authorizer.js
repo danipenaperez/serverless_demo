@@ -55,7 +55,7 @@ exports.basiclogin = async function(event) {
 		console.log(err);
 	}
 
-
+	
 	return {
 		statusCode: 200,
 		body: JSON.stringify({

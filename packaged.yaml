@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Project using some AWS serveless services
+Globals:
+  Function:
+    Timeout: 50
 Resources:
   MyApi:
     Type: AWS::Serverless::Api
@@ -9,7 +12,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/04c11aa042bfd7f073a4fd645b4dad3a
+      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
       Handler: authorizer.basiclogin
       Runtime: nodejs8.10
       Events:
@@ -23,7 +26,7 @@ Resources:
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/04c11aa042bfd7f073a4fd645b4dad3a
+      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
       Handler: authorizer.validateToken
       Runtime: nodejs8.10
       Events:
@@ -34,6 +37,56 @@ Resources:
               Ref: MyApi
             Path: /token/validate
             Method: post
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      Handler: usersCRUD.create
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: UsersTable
+      Events:
+        PostRoot:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MyApi
+            Path: /users
+            Method: post
+  UpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      Handler: usersCRUD.update
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: UsersTable
+      Events:
+        PutRoot:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MyApi
+            Path: /users
+            Method: put
+  UsersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: usersTable
+      PrimaryKey:
+        Name: id
+        Type: String
+      Tags:
+        Department: Middleware
+        AppType: Serverless
+      SSESpecification:
+        SSEEnabled: true
 Outputs:
   ApiURL:
     Description: API URL

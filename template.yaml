@@ -1,11 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Project using some AWS serveless services
+Globals:
+  Function:
+    Timeout: 50
 Resources:
   MyApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Dev
+# SECURITY ##################################
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -32,6 +36,57 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /token/validate
             Method: post
+## CRUD USERS ###########################            
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: usersCRUD.create
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UsersTable
+      Events:
+        PostRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /users
+            Method: post
+  UpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: usersCRUD.update
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UsersTable
+      Events:
+        PutRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /users
+            Method: put                       
+  # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
+  UsersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: usersTable
+      PrimaryKey:
+        Name: id
+        Type: String
+      #ProvisionedThroughput:
+      #  ReadCapacityUnits: 5
+      #  WriteCapacityUnits: 5
+      Tags:
+        Department: Middleware
+        AppType: Serverless
+      SSESpecification:
+        SSEEnabled: true #Enalbes encription 
 Outputs:
   ApiURL:
     Description: "API URL"

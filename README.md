@@ -33,3 +33,11 @@ $ curl -X POST -H 'Authorization: Basic dXNlcjE6MTIzNDU=' -i http://localhost:30
 This request will return the JWT token for 1 minute, paste the token on Bearer Authentication header
 
 $ curl -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwicHJpdmlsZWRnZXMiOiJhbHRvIHkgb2pvcyBhenVsZXMiLCJpYXQiOjE1NjEwMzY0NzYsImV4cCI6MTU2MTAzNjUzNn0.Wt5uzZmAP33urTLLIpJcq9SNUhSynkHtDVgaw-Ke5YU' -i http://localhost:3000/token/validate
+
+
+
+Para esta version vamos a crear una tabla en Dynamo para usuaros (usersTable),
+1-añadimos en el template.yaml 
+
+Pero es necesario crear la tabla en remoto para poder jugar (se podria hacer un docker con una imagen y demas....pero no nos vamos aliar)
+Asi que hay que hacer el build para construir la plantilla de cloudformation y hacer el deploy
