@@ -37,6 +37,23 @@ Resources:
             Path: /token/validate
             Method: post
 ## CRUD USERS ###########################            
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: usersCRUD.get
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UsersTable
+      Events:
+        GetUserPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /users/{resourceId}
+            Method: get 
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -69,25 +86,25 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /users
+            Path: /users/{resourceId}
             Method: put                       
   # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UsersTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      TableName: usersTable
-      PrimaryKey:
-        Name: id
-        Type: String
-      #ProvisionedThroughput:
-      #  ReadCapacityUnits: 5
-      #  WriteCapacityUnits: 5
-      Tags:
-        Department: Middleware
-        AppType: Serverless
-      SSESpecification:
-        SSEEnabled: true #Enalbes encription 
+   Type: AWS::Serverless::SimpleTable
+   Properties:
+     TableName: usersTable
+     PrimaryKey:
+       Name: id
+       Type: String
+     #ProvisionedThroughput:
+     #  ReadCapacityUnits: 5
+     #  WriteCapacityUnits: 5
+     Tags:
+       Department: Middleware
+       AppType: Serverless
+     SSESpecification:
+       SSEEnabled: true #Enalbes encription 
 Outputs:
   ApiURL:
     Description: "API URL"
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/'

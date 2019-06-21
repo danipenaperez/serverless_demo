@@ -12,7 +12,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
       Handler: authorizer.basiclogin
       Runtime: nodejs8.10
       Events:
@@ -26,7 +26,7 @@ Resources:
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
       Handler: authorizer.validateToken
       Runtime: nodejs8.10
       Events:
@@ -37,10 +37,29 @@ Resources:
               Ref: MyApi
             Path: /token/validate
             Method: post
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      Handler: usersCRUD.get
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: UsersTable
+      Events:
+        GetUserPath:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MyApi
+            Path: /users/{resourceId}
+            Method: get
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
       Handler: usersCRUD.create
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -59,7 +78,7 @@ Resources:
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/3f569f44bbb3e931b81b5e8d0dbb8935
+      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
       Handler: usersCRUD.update
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -73,7 +92,7 @@ Resources:
           Properties:
             RestApiId:
               Ref: MyApi
-            Path: /users
+            Path: /users/{resourceId}
             Method: put
   UsersTable:
     Type: AWS::Serverless::SimpleTable
@@ -91,4 +110,4 @@ Outputs:
   ApiURL:
     Description: API URL
     Value:
-      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/

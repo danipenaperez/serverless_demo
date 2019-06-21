@@ -16,28 +16,34 @@ const usersTable = process.env.TABLE_NAME;
 
 
 /** RETURN A USER **/
-exports.get = async function(event, context, callback) {
+exports.get = (event, context, callback) => {
+    console.log('tablename es ');
+    console.log(usersTable);
+    var params = {
+        "TableName": usersTable,
+        "Key": {
+            id: event.pathParameters.resourceId
+        }
+    };
 
-
-	//SAVE IT
-	//get(event.pathParameters.resourceId, callback);
-
-/**
-	return {
-			statusCode: 201,
-			body: JSON.stringify({userData})
-	}
-**/
-
-
-	return {
-			statusCode: 201,
-			body: JSON.stringify(event)
-	}
-}
+    dynamo.getItem(params, (err, data) => {
+        var response;
+        if (err){
+            console.log('ha idgo mal ');
+            console.log(err);
+            response = createResponse(500, err);
+        }
+        else{
+        	console.log('ha idgo bien');
+        	console.log(JSON.stringify(data.Item));
+            response = createResponse(200, data.Item ? data.Item.doc : null);
+        }
+        callback(null, {body:JSON.stringify(data.Item.doc)});
+    });
+};
 
 /** CREATE A USER **/
-exports.create = async function(event, context, callback) {
+exports.create = (event, context, callback) => {
 
 	console.log('y la tabla es ' +JSON.stringify(usersTable)); 
 
@@ -46,21 +52,16 @@ exports.create = async function(event, context, callback) {
 	let userData = JSON.parse(event.body);
 	logger.info('Created User ' + userData);
 	logger.info('1 '+ userData.document.value);
-	//SAVE IT
-	put(userData.document.value, userData);
-
-	/**
-	return {
-			statusCode: 201,
-			body: JSON.stringify({userData}),
-		
-	}
-	**/
+	
+	put(userData.document.value, userData, callback);
+	
 
 }
 /** UPDATE A USER **/
-exports.update = async function(event, context, callback) {
+exports.update = (event, context, callback)=>  {
 	//fetch Header 
+	console.log('y el resource es ' +event.pathParameters.resourceId);
+
 
 	let body = event.body;
 	logger.info('Updating User ' + body);
@@ -101,20 +102,26 @@ function put(key , content, callback){
 }
 
 
-function get(key, callbak){
+function get(key, callback){
 	var params = {
         "TableName": usersTable,
         "Key": {
             id: key
         }
     };
-
+    console.log('y llamo al get con ');
+    console.log(params);
     dynamo.getItem(params, (err, data) => {
         var response;
-        if (err)
+        if (err){
+        	console.log('ha ido mal ');
+        	console.log(err);
             response = createResponse(500, err);
-        else
+        }else{
+        	console.log('jha ido bien');
+        	console.log (JSON.stringify(data.Item));
             response = createResponse(200, data.Item ? data.Item.doc : null);
+        }
         callback(null, response);
     });
 
