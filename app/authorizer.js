@@ -13,6 +13,7 @@ exports.basiclogin = async function(event) {
 	let auth = event.headers.Authorization;
 	logger.info("auth es " + auth);
 
+
 	//Process it
 	var tmp = auth.split(' '); // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
 	var buf = new Buffer(tmp[1], 'base64'); // create a buffer and tell it the data coming in is base64
@@ -37,10 +38,10 @@ exports.basiclogin = async function(event) {
 	//Create JWT
 	var token = JWT.sign({
 			username: username,
-			claims: 'alto y ojos azules'
+			claims: 'read:write Pets'
 		},
 		SECRET, {
-			expiresIn: '1m' // expires in 24 hours
+			expiresIn: '2m' // expires in 24 hours
 		}
 	);
 
@@ -59,49 +60,141 @@ exports.basiclogin = async function(event) {
 	return {
 		statusCode: 200,
 		body: JSON.stringify({
-			token: 'Bearer '+token, 
+			token: 'Bearer ' + token,
 			refreshToken: 'Bearer 12345'
 		}),
 		headers: {
-			Authorization: 'Bearer '+token
+			Authorization: 'Bearer ' + token
 		}
 	}
 
 }
 /**
-*Validate JWT Token
-**/
+ *Validate JWT Token
+ **/
 exports.validateToken = async function(event) {
+	const auth_token = event.authorizationToken
+	console.log("el authorization token por configuracion es " + auth_token);
+	//fetch Header 
+	let auth = auth_token;
+	const methodArn = event.methodArn
+	logger.info("auth es " + auth);
+	logger.info("metodo invocado " + methodArn);
+
+	//Process it
+	if (auth.indexOf('Bearer') == -1) {
+		return {
+			statusCode: 401,
+			body: JSON.stringify({
+				'msg': 'Not found Bearer Token'
+			}),
+
+		}
+	}
+	var tmp = auth.split(' '); // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
+
+	var plain_auth = tmp[1];
+
+
+	var response;
+
+	try {
+		const decoded = JWT.verify(plain_auth, SECRET);
+		console.log(decoded);
+		response = generateAuthResponse('user', 'Allow', methodArn);
+
+	} catch (err) {
+		// Throws an error if the token is invalid.
+		console.log('error en token jwt' + err);
+		response = generateAuthResponse('user', 'Deny', methodArn);
+
+	}
+
+
+	return response;
+
+}
+
+
+
+function generateAuthResponse(principalId, effect, methodArn) {
+	// If you need to provide additional information to your integration
+	// endpoint (e.g. your Lambda Function), you can add it to `context`
+	const context = {
+		'stringKey': 'stringval',
+		'numberKey': 123,
+		'booleanKey': true
+	}
+	const policyDocument = generatePolicyDocument(effect, methodArn)
+
+	return {
+		principalId,
+		context,
+		policyDocument
+	}
+}
+
+function generatePolicyDocument(effect, methodArn) {
+	if (!effect || !methodArn) return null
+
+/**
+	const policyDocument = {
+		Version: '2012-10-17',
+		Statement: [{
+			Action: 'execute-api:Invoke',
+			Effect: effect,
+			Resource: methodArn
+		}]
+	}
+**/
+	const policyDocument = {
+		Version: '2012-10-17',
+		Statement: [{
+			Action: 'execute-api:Invoke',
+			Effect: effect,
+			Resource: "*"
+		}]
+	}
+
+
+	return policyDocument
+}
+
+
+
+exports.validateToken2 = async function(event) {
 	//fetch Header 
 	let auth = event.headers.Authorization;
 	logger.info("auth es " + auth);
 
 	//Process it
-	if(auth.indexOf('Bearer')== -1){
+	if (auth.indexOf('Bearer') == -1) {
 		return {
 			statusCode: 401,
-			body: JSON.stringify({'msg':'Not found Bearer Token'}),
-			
+			body: JSON.stringify({
+				'msg': 'Not found Bearer Token'
+			}),
+
 		}
 	}
 	var tmp = auth.split(' '); // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
-	
+
 	var plain_auth = tmp[1];
-	
+
 	//Test decode it
 	//@ see https://yos.io/2017/09/03/serverless-authentication-with-jwt/
 	try {
 		const decoded = JWT.verify(plain_auth, SECRET);
-		console.log(decoded); 
+		console.log(decoded);
 
-		
+
 	} catch (err) {
 		// Throws an error if the token is invalid.
 		console.log(err);
 		return {
 			statusCode: 401,
 			body: JSON.stringify(err)
-			
+
 		}
 	}
 
@@ -109,8 +202,10 @@ exports.validateToken = async function(event) {
 	logger.info(methodArn);
 	return {
 		statusCode: 200,
-		body: JSON.stringify({'msg':'congrats your token is ok'}),
-		
+		body: JSON.stringify({
+			'msg': 'congrats your token is ok'
+		}),
+
 	}
 
 }

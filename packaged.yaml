@@ -9,10 +9,20 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Dev
+      Auth:
+        DefaultAuthorizer: CustomLambdaTokenAuthorizer
+        Authorizers:
+          CustomLambdaTokenAuthorizer:
+            FunctionArn:
+              Fn::GetAtt:
+              - ValidateTokenFunction
+              - Arn
+            Identity:
+              Header: Authorization
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: authorizer.basiclogin
       Runtime: nodejs8.10
       Events:
@@ -23,24 +33,18 @@ Resources:
               Ref: MyApi
             Path: /login
             Method: post
+            Auth:
+              Authorizer: NONE
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: authorizer.validateToken
       Runtime: nodejs8.10
-      Events:
-        GetRoot:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: MyApi
-            Path: /token/validate
-            Method: post
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: usersCRUD.get
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -59,7 +63,7 @@ Resources:
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: usersCRUD.create
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -79,7 +83,7 @@ Resources:
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: usersCRUD.update
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -98,7 +102,7 @@ Resources:
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/e694532e8c2103fef723dab2390363fe
+      CodeUri: s3://serverless-demo-bucket-dpp/83634c27bd2dfe3341444df6090621b5
       Handler: usersCRUD.delete
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess

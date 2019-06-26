@@ -74,3 +74,48 @@ curl -X GET -k -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/us
 
 DELETE THE USER
 curl -X DELETE -k -H 'Accept: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331112K'
+
+
+
+https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e
+//CON JWT 
+Obtener un token, a partir de las credenciales
+curl -X POST -k -H 'Authorization: Basic YWRtaW4xMjM6MTIzNDU=' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/login'
+retorna el body 
+{
+  "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw",
+  "refreshToken": "Bearer 12345"
+}
+
+Ahora usar el valor de ese token en todas las peticiones y meterlo en la cabecera Authorization .
+Lso ejemplos anteriores ahora sonn asi:
+
+curl -X POST -k -H 'Content-Type: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users' --data '{
+  "lastName": "Marcos Alonso",
+  "password": "s3cr3t",
+  "address": {
+    "name": "alcala ,4A ",
+    "Country": "Spain",
+    "ZipCode": 28043
+  },
+  "document": {
+    "type": "NIF",
+    "value": "519331116K"
+  },
+  "name": "Paco",
+  "email": "paco@gmail.com",
+  "acceptedLegalConditions": true
+}'
+
+
+curl -X PUT -k -H 'Content-Type: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331116K' --data '{
+  "address": {
+    "name": "Mayor 72,4A ",
+    "Country": "Bartolacaca",
+    "ZipCode": 2345667
+  }
+}'
+
+curl -X GET -k -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -H 'Accept: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331115K'
+
+curl -X DELETE -k -H 'Accept: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331116K'
