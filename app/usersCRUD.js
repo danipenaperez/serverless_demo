@@ -2,6 +2,7 @@
 
 var BCrypt = require('bcryptjs');
 var JWT = require('jsonwebtoken');
+var ObjectPath = require('object-path');
 var logger = require('./logger');
 var SECRET = 'certificateValueLiteral';
 
@@ -12,67 +13,127 @@ let dynamo = new doc.DynamoDB();
 /**
 * Constants
 **/
-const usersTable = process.env.TABLE_NAME;
+const entityTable = process.env.TABLE_NAME;
+const entityIdField = process.env.ENTITY_ID_FIELD;
 
 
 /** RETURN A USER **/
 exports.get = (event, context, callback) => {
-    console.log('tablename es ');
-    console.log(usersTable);
+    get(event.pathParameters.resourceId, function(err, data){
+        var response;
+        if(err){
+            response = createResponse(500, err);
+        }else if(data.Item === undefined){
+            response = createResponse(404, null);
+        }else{
+            response = createResponse(200, data.Item ? data.Item.doc : null);
+        }
+        callback(null, response);
+    });
+};
+
+
+
+/** CREATE A USER **/
+exports.create = (event, context, callback) => {
+    var entityData = JSON.parse(event.body);
+
+    //Fetch the Id key for the Create Object (from globals)
+    var objectToCreateId = ObjectPath.get(entityData,entityIdField);
+
+
+    get(objectToCreateId, function(err, data) {
+        var response;
+        if(err){
+            response = createResponse(500, err);
+            callback(null, response);
+        }else if(data.Item !== undefined){
+            response = createResponse(403, "The entity key already exists. Try PUT instead of POST");
+            callback(null, response);
+        }else{
+            //The object not exist, so execute update
+            put(objectToCreateId, entityData, function(err, createdData){
+                if(err){
+                    response = createResponse(500, err);
+                }else{
+                    response = createResponse(200, entityData);
+                } 
+                callback(null, response);
+            });
+                
+        }
+    });
+}
+
+/** UPDATE A USER **/
+exports.update = (event, context, callback)=>  {
+	//fetch Header 
+    var objectToUpdateId = event.pathParameters.resourceId;
+	
+    var entityData = JSON.parse(event.body);
+	get(objectToUpdateId, function(err, data) {
+        var response;
+        if(err){
+            response = createResponse(500, err);
+            callback(null, response);
+        }else if(data.Item === undefined){
+            response = createResponse(404, "The target object does not exists");
+            callback(null, response);
+        }else{
+            Object.assign(data.Item.doc,entityData);//Merge data
+            put(objectToUpdateId, data.Item.doc, function(err, updatedData){
+                if(err){
+                    response = createResponse(500, err);
+                }else{
+                    response = createResponse(200, data.Item.doc);
+                } 
+                callback(null, response);
+            });
+    
+        }
+	});
+}
+
+/** DELETE A USER **/
+exports.delete = (event, context, callback)=>  {
+    //fetch Header 
+    console.log('y el resource es ' +event.pathParameters.resourceId);
+    var objectToDeleteId = event.pathParameters.resourceId;
+    remove(objectToDeleteId, function(err,data){
+        var response;
+        if(err){
+            response = createResponse(500, err);
+            callback(null, response);
+        }else {
+            response = createResponse(204, null);
+            callback(null, response);
+        }
+    });
+}
+
+
+
+
+
+/**
+* Fetch the entity from DataBase. 
+* return empty object if {} if not found
+**/
+function get(key, callback){
     var params = {
-        "TableName": usersTable,
+        "TableName": entityTable,
         "Key": {
-            id: event.pathParameters.resourceId
+            id: key
         }
     };
 
     dynamo.getItem(params, (err, data) => {
-        var response;
-        if (err){
-            console.log('ha idgo mal ');
-            console.log(err);
-            response = createResponse(500, err);
-        }
-        else{
-        	console.log('ha idgo bien');
-        	console.log(JSON.stringify(data.Item));
-            response = createResponse(200, data.Item ? data.Item.doc : null);
-        }
-        callback(null, {body:JSON.stringify(data.Item.doc)});
+        callback(err, data);
     });
-};
-
-/** CREATE A USER **/
-exports.create = (event, context, callback) => {
-
-	console.log('y la tabla es ' +JSON.stringify(usersTable)); 
-
-	//fetch Header 
-	console.log(event.body);
-	let userData = JSON.parse(event.body);
-	logger.info('Created User ' + userData);
-	logger.info('1 '+ userData.document.value);
-	
-	put(userData.document.value, userData, callback);
-	
-
-}
-/** UPDATE A USER **/
-exports.update = (event, context, callback)=>  {
-	//fetch Header 
-	console.log('y el resource es ' +event.pathParameters.resourceId);
-
-
-	let body = event.body;
-	logger.info('Updating User ' + body);
-	return {
-			statusCode: 200,
-			body: JSON.stringify({body}),
-		
-	}
 }
 
 
+//INTERNAL FUNCTIONS /////////////////
 function put(key , content, callback){
 	var item = {
         "id": key,
@@ -80,7 +141,7 @@ function put(key , content, callback){
     };
 
     var params = {
-        "TableName": usersTable,
+        "TableName": entityTable,
         "Item": item
     };
 
@@ -88,49 +149,30 @@ function put(key , content, callback){
     console.log( params);
 
     dynamo.putItem(params, (err, data) => {
-        var response;
-        if (err){
-        	console.log('ha habido error ');
-        	console.log(err);
-            response = createResponse(500, err);
-        }else{
-        	console.log('ha IDO BIEN ');
-            response = createResponse(200, null);
-        }
-        callback(null, response);
+        callback(err, params);//data is {}, so this method return the input body that will be stored on bbdd
     });
 }
 
-
-function get(key, callback){
-	var params = {
-        "TableName": usersTable,
-        "Key": {
-            id: key
-        }
+function remove(key, callback){
+    var item = {
+        "id": key
     };
-    console.log('y llamo al get con ');
-    console.log(params);
-    dynamo.getItem(params, (err, data) => {
-        var response;
-        if (err){
-        	console.log('ha ido mal ');
-        	console.log(err);
-            response = createResponse(500, err);
-        }else{
-        	console.log('jha ido bien');
-        	console.log (JSON.stringify(data.Item));
-            response = createResponse(200, data.Item ? data.Item.doc : null);
-        }
-        callback(null, response);
-    });
 
+    var params = {
+        "TableName": entityTable,
+        "Key": item
+    };
+    dynamo.deleteItem(params,(err, data)=>{
+        callback(err,params);
+    })
 }
+
+
 
 //UTILS ///////////
 const createResponse = (statusCode, body) => {
     return {
         "statusCode": statusCode,
-        "body": body || ""
+        "body": body ? JSON.stringify(body) : ""
     }
 };

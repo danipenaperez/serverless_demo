@@ -12,7 +12,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
       Handler: authorizer.basiclogin
       Runtime: nodejs8.10
       Events:
@@ -26,7 +26,7 @@ Resources:
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
       Handler: authorizer.validateToken
       Runtime: nodejs8.10
       Events:
@@ -40,7 +40,7 @@ Resources:
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
       Handler: usersCRUD.get
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -59,7 +59,7 @@ Resources:
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
       Handler: usersCRUD.create
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -67,6 +67,7 @@ Resources:
         Variables:
           TABLE_NAME:
             Ref: UsersTable
+          ENTITY_ID_FIELD: document.value
       Events:
         PostRoot:
           Type: Api
@@ -78,7 +79,7 @@ Resources:
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/0505dd7c86b5df0f6e358660446e3c03
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
       Handler: usersCRUD.update
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -94,6 +95,25 @@ Resources:
               Ref: MyApi
             Path: /users/{resourceId}
             Method: put
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://serverless-demo-bucket-dpp/ee6316f9f3eeb9176dbba009eaf98400
+      Handler: usersCRUD.delete
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: UsersTable
+      Events:
+        PutRoot:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MyApi
+            Path: /users/{resourceId}
+            Method: delete
   UsersTable:
     Type: AWS::Serverless::SimpleTable
     Properties:

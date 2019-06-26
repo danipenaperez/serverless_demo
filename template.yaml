@@ -64,6 +64,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref UsersTable
+          ENTITY_ID_FIELD: 'document.value'
       Events:
         PostRoot:
           Type: Api
@@ -87,7 +88,24 @@ Resources:
           Properties:
             RestApiId: !Ref MyApi
             Path: /users/{resourceId}
-            Method: put                       
+            Method: put
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: usersCRUD.delete
+      Runtime: nodejs8.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UsersTable
+      Events:
+        PutRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /users/{resourceId}
+            Method: delete                                       
   # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UsersTable:
    Type: AWS::Serverless::SimpleTable

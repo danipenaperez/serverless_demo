@@ -41,3 +41,36 @@ Para esta version vamos a crear una tabla en Dynamo para usuaros (usersTable),
 
 Pero es necesario crear la tabla en remoto para poder jugar (se podria hacer un docker con una imagen y demas....pero no nos vamos aliar)
 Asi que hay que hacer el build para construir la plantilla de cloudformation y hacer el deploy
+
+
+TO TEST:
+CREATE NEW USER:
+curl -X POST -k -H 'Content-Type: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users' --data '{
+  "lastName": "Marcos Alonso",
+  "password": "s3cr3t",
+  "address": {
+    "name": "alcala ,4A ",
+    "Country": "Spain",
+    "ZipCode": 28043
+  },
+  "document": {
+    "type": "NIF",
+    "value": "519331112K"
+  },
+  "name": "Paco",
+  "email": "paco@gmail.com",
+  "acceptedLegalConditions": true
+}'
+UPDATE THE USER (partial update):
+curl -X PUT -k -H 'Content-Type: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331112K' --data '{
+  "address": {
+    "name": "Mayor 72,4A ",
+    "Country": "Slovakia",
+    "ZipCode": 2345667
+  }
+}'
+FETCH THE USER
+curl -X GET -k -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331112K'
+
+DELETE THE USER
+curl -X DELETE -k -H 'Accept: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331112K'
