@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://code.jquery.com/jquery-3.4.1.js"  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>Authentication</h1>
+      <input type="text" id="username" value="admin@hello.com"/>
+      <input type="text" id="password" value="12345"/>
+      <button id="login_button">Login</button>
+      <input type="text" id="tokenvalue">
+</body>
+<script>
+
+var stageURL = "https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev";
+//var stageURL = "http://localhost:3000";
+
+
+document.getElementById('login_button').addEventListener('click', function() {
+      var username = $("input#username").val();
+      var password = $("input#password").val();
+      alert(username+"/"+password);
+      alert(btoa(username + ":" + password));
+      $.ajax({
+          type:"POST", 
+          url:stageURL+'/login', 
+          contentType: "application/json",
+          headers: {
+              'Authorization':'Basic '+btoa(username + ":" + password)
+          },
+          success: function (res){ 
+            alert('success') 
+            $('#fileKeyName').val(res.key);
+          },
+          error: function (err){ 
+            alert(err.responseText);
+          }
+            //,dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
+      });
+});
+
+
+
+
+</script>
+</html>
