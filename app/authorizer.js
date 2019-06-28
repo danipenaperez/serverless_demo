@@ -1,6 +1,7 @@
 'use strict';
 
 var BCrypt = require('bcryptjs');
+var Response = require('./response');
 var JWT = require('jsonwebtoken');
 var logger = require('./logger');
 var SECRET = 'certificateValueLiteral';
@@ -8,7 +9,13 @@ var SECRET = 'certificateValueLiteral';
 /**
  * Verify Basic Credentials and return the generated JWT token
  **/
-exports.basiclogin = async function(event) {
+exports.basiclogin = async function(event, context) {
+	console.log('el context es ');
+	console.log(context);
+
+	console.log('el event es ');
+	console.log(event);
+
 	//fetch Header 
 	let auth = event.headers.Authorization;
 	logger.info("auth es " + auth);
@@ -41,7 +48,7 @@ exports.basiclogin = async function(event) {
 			claims: 'read:write Pets'
 		},
 		SECRET, {
-			expiresIn: '2m' // expires in 24 hours
+			expiresIn: '30m' // expires in 24 hours
 		}
 	);
 
@@ -56,7 +63,7 @@ exports.basiclogin = async function(event) {
 		console.log(err);
 	}
 
-
+	/**
 	return {
 		statusCode: 200,
 		body: JSON.stringify({
@@ -64,20 +71,54 @@ exports.basiclogin = async function(event) {
 			refreshToken: 'Bearer 12345'
 		}),
 		headers: {
-			Authorization: 'Bearer ' + token
+			Authorization: 'Bearer ' + token,
+			"Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key, Accept"
 		}
 	}
+	**/
+	return Response.createResponse(200, {token: 'Bearer ' + token, refreshToken: 'Bearer 12345'});
 
 }
 /**
  *Validate JWT Token
  **/
-exports.validateToken = async function(event) {
-	const auth_token = event.authorizationToken
+exports.validateToken = async function(event, context) {
+
+	console.log('event es ');
+	console.log(event);
+	console.log('context es ');
+	console.log(context);
+
+
+	const auth_token = event.authorizationToken;
+	const methodArn = event.methodArn;
+	
 	console.log("el authorization token por configuracion es " + auth_token);
+
+	if(methodArn.indexOf('OPTIONS')!= -1){
+		console.log('es el OPTIONS');
+		return generateAuthResponse('user', 'Allow', methodArn);
+	}else{
+		console.log('no es optiones el method es '+ event.httpMethod);
+	}
+
+
+	//IF IS OPTIONS ALLOW always
+	console.log('el context es ');
+	console.log(context);
+	/**
+	if(event.httpMethod.toUpperCase() == 'OPTIONS'){
+		console.log('es el OPTIONS');
+		return generateAuthResponse('user', 'Allow', methodArn);
+	}else{
+		console.log('no es optiones el method es '+ event.httpMethod);
+	}
+	**/
+
 	//fetch Header 
 	let auth = auth_token;
-	const methodArn = event.methodArn
+	
 	logger.info("auth es " + auth);
 	logger.info("metodo invocado " + methodArn);
 

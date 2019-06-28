@@ -9,14 +9,20 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Dev
+      Cors: 
+        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        AllowOrigin: "'*'"
+        #AllowCredentials: true
       Auth:
-        DefaultAuthorizer: CustomLambdaTokenAuthorizer
+        # AddDefaultAuthorizerToCorsPreflight: False
+        # DefaultAuthorizer: CustomLambdaTokenAuthorizer
         Authorizers:
           CustomLambdaTokenAuthorizer:
             FunctionArn: !GetAtt ValidateTokenFunction.Arn
             Identity:
               Header: Authorization
-              # ValidationExpression: Bearer.*
+              #ValidationExpression: Bearer.*
 # SECURITY ##################################
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -31,8 +37,6 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /login
             Method: post
-            Auth:
-             Authorizer: NONE
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -56,7 +60,9 @@ Resources:
           Properties:
             RestApiId: !Ref MyApi
             Path: /users/{resourceId}
-            Method: get 
+            Method: get
+            Auth:
+              Authorizer: CustomLambdaTokenAuthorizer 
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -92,6 +98,8 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /users/{resourceId}
             Method: put
+            Auth:
+              Authorizer: CustomLambdaTokenAuthorizer
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -108,7 +116,9 @@ Resources:
           Properties:
             RestApiId: !Ref MyApi
             Path: /users/{resourceId}
-            Method: delete                                       
+            Method: delete
+            Auth:
+              Authorizer: CustomLambdaTokenAuthorizer                                      
   # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UsersTable:
    Type: AWS::Serverless::SimpleTable

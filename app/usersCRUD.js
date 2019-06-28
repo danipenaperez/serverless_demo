@@ -1,6 +1,7 @@
 'use strict';
 
 var logger = require('./logger');
+var Response = require('./response');
 var BasicDAO = require('./basicDAO');
 let ObjectPath = require('object-path');
 
@@ -22,11 +23,11 @@ exports.get = (event, context, callback) => {
     basicDAO.get(event.pathParameters.resourceId, function(err, data){
         var response;
         if(err){
-            response = createResponse(500, err);
+            response = Response.createResponse(500, err);
         }else if(data.Item === undefined){
-            response = createResponse(404, null);
+            response = Response.createResponse(404, null);
         }else{
-            response = createResponse(200, data.Item ? data.Item.doc : null);
+            response = Response.createResponse(200, data.Item ? data.Item.doc : null);
         }
         callback(null, response);
     });
@@ -47,18 +48,18 @@ exports.create = (event, context, callback) => {
     basicDAO.get(objectToCreateId, function(err, data) {
         var response;
         if(err){
-            response = createResponse(500, err);
+            response = Response.createResponse(500, err);
             callback(null, response);
         }else if(data.Item !== undefined){
-            response = createResponse(403, "The entity key already exists. Try PUT instead of POST");
+            response = Response.createResponse(403, "The entity key already exists. Try PUT instead of POST");
             callback(null, response);
         }else{
             //The object not exist, so execute update
             basicDAO.put(objectToCreateId, entityData, function(err, createdData){
                 if(err){
-                    response = createResponse(500, err);
+                    response = Response.createResponse(500, err);
                 }else{
-                    response = createResponse(200, entityData);
+                    response = Response.createResponse(200, entityData);
                 } 
                 callback(null, response);
             });
@@ -76,18 +77,18 @@ exports.update = (event, context, callback)=>  {
 	basicDAO.get(objectToUpdateId, function(err, data) {
         var response;
         if(err){
-            response = createResponse(500, err);
+            response = Response.createResponse(500, err);
             callback(null, response);
         }else if(data.Item === undefined){
-            response = createResponse(404, "The target object does not exists");
+            response = Response.createResponse(404, "The target object does not exists");
             callback(null, response);
         }else{
             Object.assign(data.Item.doc,entityData);//Merge data
             basicDAO.put(objectToUpdateId, data.Item.doc, function(err, updatedData){
                 if(err){
-                    response = createResponse(500, err);
+                    response = Response.createResponse(500, err);
                 }else{
-                    response = createResponse(200, data.Item.doc);
+                    response = Response.createResponse(200, data.Item.doc);
                 } 
                 callback(null, response);
             });
@@ -104,25 +105,13 @@ exports.delete = (event, context, callback)=>  {
     basicDAO.remove(objectToDeleteId, function(err,data){
         var response;
         if(err){
-            response = createResponse(500, err);
+            response = Response.createResponse(500, err);
             callback(null, response);
         }else {
-            response = createResponse(204, null);
+            response = Response.createResponse(204, null);
             callback(null, response);
         }
     });
 }
 
 
-
-
-
-
-
-//UTILS ///////////
-const createResponse = (statusCode, body) => {
-    return {
-        "statusCode": statusCode,
-        "body": body ? JSON.stringify(body) : ""
-    }
-};

@@ -8,34 +8,71 @@
 </head>
 <body>
     <h1>Authentication</h1>
-      <input type="text" id="username" value="admin@hello.com"/>
-      <input type="text" id="password" value="12345"/>
-      <button id="login_button">Login</button>
-      <input type="text" id="tokenvalue">
+
+      <table >
+        <tr>
+          <th colspan=2>LOGIN</th>
+        </tr>
+        <tr>
+          <td>UserName:</td>
+          <td><input type="text" id="username" value="admin12345"/></td>
+        </tr>
+        <tr>
+          <td>Password:</td>
+          <td><input type="text" id="password" value="12345"/></td>
+        </tr>
+        <tr>
+          <td><button id="login_button">Login</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Obtained Token Value:</td>
+          <td><input type="text" id="tokenvalue" /></td>
+        </tr>
+      </table>
+
+      <table >
+        <tr>
+          <th colspan=2>Operations</th>
+        </tr>
+        <tr>
+          <td>UserId:</td>
+          <td><input type="text" id="userId" value="519331115K"/></td>
+          <td>Get User...</td>
+          <td><button id="fetch_info">Info</button></td>
+          <td><button id="fetch_insuredPolicies">Insured Policies</button></td>
+          <td><button id="fetch_objects">Objects</button></td>
+          <td><button id="fetch_invoices">invoices</button></td>
+        </tr>
+      </table> 
+      <div id="result"></div>
 </body>
+
 <script>
 
 var stageURL = "https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev";
 //var stageURL = "http://localhost:3000";
-
+var tokenBearer; 
 
 document.getElementById('login_button').addEventListener('click', function() {
       var username = $("input#username").val();
       var password = $("input#password").val();
-      alert(username+"/"+password);
-      alert(btoa(username + ":" + password));
+      console.log(username+"/"+password);
+      console.log(btoa(username + ":" + password));
       $.ajax({
           type:"POST", 
           url:stageURL+'/login', 
-          contentType: "application/json",
+         //contentType: "application/json",
           headers: {
               'Authorization':'Basic '+btoa(username + ":" + password)
           },
+          
           success: function (res){ 
-            alert('success') 
-            $('#fileKeyName').val(res.key);
+            alert('success');
+            $('#tokenvalue').val(res.token);
           },
           error: function (err){ 
+            alert('error');
             alert(err.responseText);
           }
             //,dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
@@ -43,6 +80,28 @@ document.getElementById('login_button').addEventListener('click', function() {
 });
 
 
+document.getElementById('fetch_info').addEventListener('click', function() {
+  $('#result').val('');
+  var url = stageURL+'/users/'+$('#userId').val();
+  //alert(url);
+    $.ajax({
+      type: "GET",
+      beforeSend: function(request) {
+        request.setRequestHeader("Authorization", $('#tokenvalue').val())
+      },
+      url: url,
+      //data: "json=" + escape(JSON.stringify(createRequestObject)),
+      //processData: false,
+      success: function(msg) {
+        alert('ha ido bien')
+        $('#result').text(JSON.stringify(msg, null, 2));
+        //$("#results").append("The result =" + StringifyPretty(msg));
+      },
+      error: function(err){
+        alert('ha ido mal '+err);
+      }
+    });
+});
 
 
 </script>

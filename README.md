@@ -119,3 +119,7 @@ curl -X PUT -k -H 'Content-Type: application/json' -H 'Authorization: Bearer eyJ
 curl -X GET -k -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -H 'Accept: application/json' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331115K'
 
 curl -X DELETE -k -H 'Accept: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzIiwiY2xhaW1zIjoicmVhZDp3cml0ZSBQZXRzIiwiaWF0IjoxNTYxNTQ4OTA3LCJleHAiOjE1NjE1NTA3MDd9.hfycl0TEAJ8YvaD1kyHutFcPO0hamWRMKGA5mOeOOQw' -i 'https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev/users/519331116K'
+
+
+CREATE CORS headers
+https://github.com/jbutz/serverless-application-model/blob/bugfix/cors-auth/examples/apps/api-gateway-multiple-origin-cors/cors-util.js
