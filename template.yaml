@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Project using some AWS serveless services
+Parameters:
+  ImagesBucket:
+    Type: String
+    Default: "images-bucket-dpp-new-2"
 Globals:
   Function:
     Timeout: 50
@@ -118,7 +122,28 @@ Resources:
             Path: /users/{resourceId}
             Method: delete
             Auth:
-              Authorizer: CustomLambdaTokenAuthorizer                                      
+              Authorizer: CustomLambdaTokenAuthorizer
+##UPDLOAD MEDIA #######              
+  PublishFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: mediaCRUD.upload
+      Runtime: nodejs8.10
+      Timeout: 60
+      Policies:
+      - S3CrudPolicy:
+          BucketName: !Sub "${ImagesBucket}"
+      Environment:
+        Variables:
+          # S3_bucket: !Ref SrcBucket
+          S3_bucket: !Ref ImagesBucket
+      Events:
+        PostResource:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: post                                      
   # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UsersTable:
    Type: AWS::Serverless::SimpleTable
@@ -135,6 +160,10 @@ Resources:
        AppType: Serverless
      SSESpecification:
        SSEEnabled: true #Enalbes encription 
+  ImagesS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref ImagesBucket       
 Outputs:
   ApiURL:
     Description: "API URL"

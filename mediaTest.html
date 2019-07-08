@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://code.jquery.com/jquery-3.4.1.js"  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+</head>
+<body>
+  Please select a file and then hit Evaluate:
+  
+  <br/>
+  <br/>
+  <input id="file" type="file"/> <button id="upload_button">Upload!!</button>
+  <br/>
+  <br/>
+  
+
+  <input type="text" id="fileKeyName">
+  <button id="fetch_button">Print!!</button>
+  <div>
+  	<!-- Image will be render here -->
+  	<img id="fetchedImage"/>
+  </div>
+  
+</body>
+<script>
+
+var stageURL = "https://99gbvdr12e.execute-api.us-west-2.amazonaws.com/Dev";
+//var stageURL = "http://localhost:3000";
+
+
+document.getElementById('upload_button').addEventListener('click', function() {
+  var files = document.getElementById('file').files;
+  if (files.length > 0) {
+     var contentBase64 = getBase64(files[0]);
+     
+  }
+});
+
+document.getElementById('fetch_button').addEventListener('click', function() {
+	var imageKey = $('#fileKeyName').val();
+	alert(imageKey);
+  	$.ajax({
+	  url: stageURL+'/images',
+	  data: 'key='+imageKey,
+	  success: function(res){
+	  	console.log('y me he traido');
+	  	console.log(res.dataType+','+res.data);
+	  	$('#fetchedImage').attr('src', res.dataType+','+res.data);
+	  }
+	  
+	});
+});
+
+function getBase64(file) {
+   var reader = new FileReader();
+   console.log('el file se llama ');
+   console.log(file);
+
+   reader.readAsDataURL(file);
+   reader.onload = function () {
+   	console.log('ya he terminado1');
+    //console.log(reader.result);
+     console.log('ya he terminado2');
+     console.log('en el 1 ');
+     //console.log(reader.result);
+
+     var uploadPayload={
+     	name:file.name,
+     	size:file.size,
+     	data:reader.result
+     }
+
+		uploadFile(uploadPayload);
+
+     // uploadFile(reader.result.split(',')[1]);
+   };
+   reader.onerror = function (error) {
+   	console.log('ya he terminado ERROR 1');
+     console.log('Error: ', error);
+     console.log('ya he terminado ERROR 2');
+   };
+}
+
+
+function uploadFile(uploadPayload){
+		//console.log('upload file es '+_base64String);
+		//console.log(uploadPayload);
+	    console.log('mandando..');
+	    console.log(uploadPayload);
+	    console.log("........")
+	    //console.log(JSON.stringify(uploadPayload));
+		console.log('mandando2..');
+	$.ajax({
+	    type:"POST", // la variable type guarda el tipo de la peticion GET,POST,..
+	    url:stageURL+'/upload', //url guarda la ruta hacia donde se hace la peticion
+	    contentType: "application/json",
+	    data:JSON.stringify(uploadPayload), // data recive un objeto con la informacion que se enviara al servidor
+      headers:{
+        "caca":"pedo",
+                "Authorization" : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzNDUiLCJjbGFpbXMiOiJyZWFkOndyaXRlIFBldHMiLCJpYXQiOjE1NjE3MjY5MTcsImV4cCI6MTU2MTcyODcxN30.uxUBbC6fMK7lLSTc0qPjgTxlfBDRPKnUoayZXfiHsxo'
+      },
+	   // dataType: 'text json',
+	    success: function (res){ 
+	    	alert('success') 
+	    	$('#fileKeyName').val(res.key);
+	    },
+        error: function (err)
+        { alert(err.responseText)}
+        //,dataType: 'json' // El tipo de datos esperados del servidor. Valor predeterminado: Intelligent Guess (xml, json, script, text, html).
+	});
+
+}
+
+
+
+</script>
+</html>
