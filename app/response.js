@@ -7,7 +7,7 @@ exports.createResponse = function(statusCode, body){
         "body": body ? JSON.stringify(body) : "",
         "headers" : {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key, Accept, Manolin"
+            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key, Accept, Access-Control-Allow-Origin"
         }
     }
 }

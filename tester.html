@@ -46,6 +46,21 @@
         </tr>
       </table> 
       <div id="result"></div>
+      <div id="userDataDetails">
+          <textarea id="sendDtaDetails" rows="10" cols="100">
+            At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+          </textarea>
+          <button id="update_button">update</button>
+          <br> 
+          <button id="create_button">Create</button> 
+      </div> 
+
+      <hr>
+      Imagenes
+      <input id="file" type="file"/> <button id="upload_button">Upload!!</button>
+
+<button id="fetch_update">Fetch Update!!</button>
+
 </body>
 
 <script>
@@ -81,7 +96,7 @@ document.getElementById('login_button').addEventListener('click', function() {
 
 
 document.getElementById('fetch_info').addEventListener('click', function() {
-  $('#result').val('');
+  $('#result').val('Pending...');
   var url = stageURL+'/users/'+$('#userId').val();
   //alert(url);
     $.ajax({
@@ -102,6 +117,152 @@ document.getElementById('fetch_info').addEventListener('click', function() {
       }
     });
 });
+
+
+document.getElementById('update_button').addEventListener('click', function() {
+  $('#result').val('Pending...');
+
+  var url = stageURL+'/users/'+$('#userId').val();
+  //alert(url);
+    $.ajax({
+      type: "PUT",
+      beforeSend: function(request) {
+        request.setRequestHeader("Authorization", $('#tokenvalue').val());
+        request.setRequestHeader("Content-Type", 'application-json');
+      },
+      url: url,
+      data: $('#sendDtaDetails').val(),
+      //processData: false,
+      success: function(msg) {
+        alert('ha ido bien')
+        $('#result').text(JSON.stringify(msg, null, 2));
+        //$("#results").append("The result =" + StringifyPretty(msg));
+      },
+      error: function(err){
+        alert('ha ido mal '+err);
+      }
+    });
+});
+
+document.getElementById('create_button').addEventListener('click', function() {
+  $('#result').val('Pending...');
+
+  var url = stageURL+'/users';
+  //alert(url);
+    $.ajax({
+      type: "POST",
+      beforeSend: function(request) {
+        request.setRequestHeader("Authorization", $('#tokenvalue').val());
+        request.setRequestHeader("Content-Type", 'application-json');
+      },
+      url: url,
+      data: $('#sendDtaDetails').val(),
+      //processData: false,
+      success: function(msg) {
+        alert('ha ido bien')
+        $('#result').text(JSON.stringify(msg, null, 2));
+        //$("#results").append("The result =" + StringifyPretty(msg));
+      },
+      error: function(err){
+        alert('ha ido mal '+err);
+      }
+    });
+});
+
+
+
+document.getElementById('fetch_update').addEventListener('click', function() {
+  $('#result').val('Pending...');
+  var url = stageURL+'/upload';
+  //alert(url);
+    $.ajax({
+      type: "GET",
+      beforeSend: function(request) {
+        request.setRequestHeader("Authorization", $('#tokenvalue').val())
+      },
+      url: url,
+      //data: "json=" + escape(JSON.stringify(createRequestObject)),
+      //processData: false,
+      success: function(msg) {
+        alert('ha ido bien')
+        $('#result').text(JSON.stringify(msg, null, 2));
+        //$("#results").append("The result =" + StringifyPretty(msg));
+      },
+      error: function(err){
+        alert('ha ido mal '+err);
+      }
+    });
+});
+
+
+
+
+document.getElementById('upload_button').addEventListener('click', function() {
+  
+  readFile(function(){
+      $('#result').val('Pending...');
+
+        var url = '"https://8hvcpbqprk.execute-api.us-west-2.amazonaws.com/Prod'+'/upload2media';
+        //alert(url);
+          $.ajax({
+            type: "POST",
+            beforeSend: function(request) {
+              request.setRequestHeader("Authorization", $('#tokenvalue').val());
+              request.setRequestHeader("Content-Type", 'application-json');
+            },
+            url: url,
+            data: $('#sendDtaDetails').val(),
+            //processData: false,
+            success: function(msg) {
+              alert('ha ido bien')
+              $('#result').text(JSON.stringify(msg, null, 2));
+              //$("#results").append("The result =" + StringifyPretty(msg));
+            },
+            error: function(err){
+              alert('ha ido mal '+err);
+            }
+          });
+  });
+
+  
+});
+
+
+
+function readFile(callback){
+  var files = document.getElementById('file').files;
+  if (files.length > 0) {
+    var file = files[0];
+     var reader = new FileReader();
+     console.log('el file se llama ');
+     console.log(file);
+
+     reader.readAsDataURL(file);
+     reader.onload = function () {
+      console.log('ya he terminado1');
+      //console.log(reader.result);
+       console.log('ya he terminado2');
+       console.log('en el 1 ');
+       //console.log(reader.result);
+
+       var uploadPayload={
+        name:file.name,
+        size:file.size,
+        data:reader.result
+       }
+
+      callback(uploadPayload);
+
+       // uploadFile(reader.result.split(',')[1]);
+     };
+     reader.onerror = function (error) {
+      console.log('ya he terminado ERROR 1');
+       console.log('Error: ', error);
+       console.log('ya he terminado ERROR 2');
+     };
+  }
+}
+
 
 
 </script>

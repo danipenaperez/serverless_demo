@@ -95,11 +95,10 @@ function uploadFile(uploadPayload){
 	$.ajax({
 	    type:"POST", // la variable type guarda el tipo de la peticion GET,POST,..
 	    url:stageURL+'/upload', //url guarda la ruta hacia donde se hace la peticion
-	    contentType: "application/json",
 	    data:JSON.stringify(uploadPayload), // data recive un objeto con la informacion que se enviara al servidor
-      headers:{
-        "caca":"pedo",
-                "Authorization" : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMTIzNDUiLCJjbGFpbXMiOiJyZWFkOndyaXRlIFBldHMiLCJpYXQiOjE1NjE3MjY5MTcsImV4cCI6MTU2MTcyODcxN30.uxUBbC6fMK7lLSTc0qPjgTxlfBDRPKnUoayZXfiHsxo'
+      beforeSend: function(request) {
+        request.setRequestHeader("Authorization", 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlVzZXIxOCIsImNsYWltcyI6InJlYWQ6d3JpdGUgUGV0cyIsImlhdCI6MTU2MjU2OTE4MiwiZXhwIjoxNTYyNTcwOTgyfQ.dezmI8nSVD0qK47MzkE_xQSpOchZeIzYUYjjGJLaZSM');
+        request.setRequestHeader("Content-Type", 'application-json');
       },
 	   // dataType: 'text json',
 	    success: function (res){ 
@@ -112,6 +111,9 @@ function uploadFile(uploadPayload){
 	});
 
 }
+
+
+
 
 
 

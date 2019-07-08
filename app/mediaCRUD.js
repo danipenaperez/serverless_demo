@@ -29,4 +29,9 @@ exports.upload = (event, context, callback) => {
 
 
 
+exports.get = (event, context, callback) => {
+    var response = Response.createResponse(200, {msg:'hola'});
+    callback(null, response);
+};
+
 
