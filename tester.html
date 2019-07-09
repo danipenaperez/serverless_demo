@@ -59,8 +59,10 @@
       Imagenes
       <input id="file" type="file"/> <button id="upload_button">Upload!!</button>
 
-<button id="fetch_update">Fetch Update!!</button>
-
+      <input type="text" id="mediaPath" /><button id="fetch_update">Fetch Image!!</button>
+      <div>
+        <img id="fetchedImage"/> <!-- Image will be render here -->
+      </div>
 </body>
 
 <script>
@@ -173,20 +175,24 @@ document.getElementById('create_button').addEventListener('click', function() {
 
 document.getElementById('fetch_update').addEventListener('click', function() {
   $('#result').val('Pending...');
-  var url = stageURL+'/upload';
+  var url = stageURL+'/media' ;
   //alert(url);
     $.ajax({
       type: "GET",
       beforeSend: function(request) {
-        request.setRequestHeader("Authorization", $('#tokenvalue').val())
+        request.setRequestHeader("Authorization", $('#tokenvalue').val());
+        request.setRequestHeader("Accept", 'application-json');
       },
       url: url,
+      data: 'key='+$('#mediaPath').val(),
       //data: "json=" + escape(JSON.stringify(createRequestObject)),
       //processData: false,
       success: function(msg) {
-        alert('ha ido bien')
-        $('#result').text(JSON.stringify(msg, null, 2));
-        //$("#results").append("The result =" + StringifyPretty(msg));
+        alert('ha ido bien');
+        console.log('y me he traido');
+        console.log(msg.dataType+','+msg.data);
+        $('#fetchedImage').attr('src', msg.dataType+','+msg.data);
+        
       },
       error: function(err){
         alert('ha ido mal '+err);
@@ -199,10 +205,10 @@ document.getElementById('fetch_update').addEventListener('click', function() {
 
 document.getElementById('upload_button').addEventListener('click', function() {
   
-  readFile(function(){
+  readFile(function(uploadPayload){
       $('#result').val('Pending...');
 
-        var url = '"https://8hvcpbqprk.execute-api.us-west-2.amazonaws.com/Prod'+'/upload2media';
+        var url = stageURL+'/upload';
         //alert(url);
           $.ajax({
             type: "POST",
@@ -211,11 +217,12 @@ document.getElementById('upload_button').addEventListener('click', function() {
               request.setRequestHeader("Content-Type", 'application-json');
             },
             url: url,
-            data: $('#sendDtaDetails').val(),
+            data: JSON.stringify(uploadPayload),
             //processData: false,
             success: function(msg) {
               alert('ha ido bien')
               $('#result').text(JSON.stringify(msg, null, 2));
+              $('#mediaPath').val(msg.key);
               //$("#results").append("The result =" + StringifyPretty(msg));
             },
             error: function(err){

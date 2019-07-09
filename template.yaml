@@ -142,7 +142,8 @@ Resources:
         PostResource:
           Type: Api
           Properties:
-            Path: /upload2media
+            RestApiId: !Ref MyApi
+            Path: /upload
             Method: post    
   PublishGETFunction:
     Type: AWS::Serverless::Function
@@ -162,7 +163,8 @@ Resources:
         PostResource:
           Type: Api
           Properties:
-            Path: /upload
+            RestApiId: !Ref MyApi
+            Path: /media
             Method: get                                              
   # @see https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UsersTable:

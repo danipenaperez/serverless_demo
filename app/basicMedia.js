@@ -21,9 +21,9 @@ BasicMedia.prototype.upload = function(data, callback) {
     
 
     try {
-        let request = JSON.parse(event.body);
+        //let request = JSON.parse(event.body);
         console.log('el body es ');
-        console.log(request);
+        console.log(data);
 
         let base64String;
         if (data.indexOf(',') > -1) {
@@ -39,7 +39,7 @@ BasicMedia.prototype.upload = function(data, callback) {
             return context.fail("The string suppplied is not a file type");
         }
 
-        let file = getFile(fileMime, buffer);
+        let file = getFile(this.bucketDestination, fileMime, buffer);
         var params = file.params;
 
 
@@ -56,9 +56,7 @@ BasicMedia.prototype.upload = function(data, callback) {
             if (err) {
                 return console.log(err);
             }
-
             callback(null,{
-                    data:data,
                     key: params.Key,
                     ETag: data.ETag
                 } )

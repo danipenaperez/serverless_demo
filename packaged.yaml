@@ -29,7 +29,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: authorizer.basiclogin
       Runtime: nodejs8.10
       Events:
@@ -43,13 +43,13 @@ Resources:
   ValidateTokenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: authorizer.validateToken
       Runtime: nodejs8.10
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: usersCRUD.get
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -70,7 +70,7 @@ Resources:
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: usersCRUD.create
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -90,7 +90,7 @@ Resources:
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: usersCRUD.update
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -111,7 +111,7 @@ Resources:
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: usersCRUD.delete
       Runtime: nodejs8.10
       Policies: AmazonDynamoDBFullAccess
@@ -132,7 +132,7 @@ Resources:
   PublishFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: mediaCRUD.upload
       Runtime: nodejs8.10
       Timeout: 60
@@ -148,12 +148,14 @@ Resources:
         PostResource:
           Type: Api
           Properties:
-            Path: /upload2media
+            RestApiId:
+              Ref: MyApi
+            Path: /upload
             Method: post
   PublishGETFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://serverless-demo-bucket-dpp/7d9c1a4b7483fe69b2bcc07f0d45b791
+      CodeUri: s3://serverless-demo-bucket-dpp/d24a0ecfa62acee9e3143916ff5925ff
       Handler: mediaCRUD.get
       Runtime: nodejs8.10
       Timeout: 60
@@ -169,7 +171,9 @@ Resources:
         PostResource:
           Type: Api
           Properties:
-            Path: /upload
+            RestApiId:
+              Ref: MyApi
+            Path: /media
             Method: get
   UsersTable:
     Type: AWS::Serverless::SimpleTable
